@@ -1,10 +1,85 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Header from "./Header";
+import { validateLogin } from "../utils/validate";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+import { auth } from "../utils/firebase";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [isLoginIn, setIsLoginIn] = useState(true); //Toggle for Sign-in & Sign-up
+  const [errorMessage, setErrorMessage] = useState(null);
+  const email = useRef(null);
+  const password = useRef(null);
+  const name = useRef(null);
+  const navigate = useNavigate();
+
   const toggleSignInForm = () => {
     setIsLoginIn(!isLoginIn);
+  };
+
+  //handling login
+
+  const handleButtonClick = () => {
+    //console.log(email.current.value);
+    //console.log(password.current.value);
+    setErrorMessage(validateLogin(email.current.value, password.current.value));
+
+    if (errorMessage) return;
+
+    if (!isLoginIn) {
+      createUserWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value
+      )
+        .then((userCredential) => {
+          // Signed up
+          const user = userCredential.user;
+          updateProfile(auth.currentUser, {
+            displayName: "user.current.value",
+          })
+            .then(() => {
+              // Profile updated!
+              navigate("/browser");
+              // ...
+            })
+            .catch((error) => {
+              // An error occurred
+              setErrorMessage(error.message); // ...
+            });
+          console.log(user);
+          navigate("/browser");
+          // ...
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          setErrorMessage(errorCode + " " + errorMessage);
+
+          // ..
+        });
+    } else {
+      signInWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value
+      )
+        .then((userCredential) => {
+          // Signed in
+          const user = userCredential.user;
+          console.log(user);
+          navigate("/browser");
+          // ...
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          setErrorMessage(errorCode + " " + errorMessage);
+        });
+    }
   };
 
   return (
@@ -18,30 +93,40 @@ const Login = () => {
         />
       </div>
       <div>
-        <form className="w-3/12 absolute p-10 bg-black mx-auto right-0 left-0 my-48 rounded-2xl bg-opacity-70">
+        <form
+          className="w-3/12 absolute p-10 bg-black mx-auto right-0 left-0 my-48 rounded-2xl bg-opacity-70"
+          onSubmit={(e) => e.preventDefault()}
+        >
           <h1 className="text-3xl font-bold text-white p-2 m-2">
             {isLoginIn ? "Sign-in" : "Sign-Up"}
           </h1>
 
           {!isLoginIn && (
             <input
+              ref={name}
               type="text"
               placeholder="Name"
               className="p-6 m-2 w-full rounded-full bg-slate-800 text-white"
             />
           )}
           <input
+            ref={email}
             type="text"
             placeholder="Email Address"
             className="p-6 m-2 w-full rounded-full bg-slate-800 text-white"
           />
           <input
+            ref={password}
             type="password"
             placeholder="Password"
             className="p-6 m-2 w-full rounded-full bg-slate-800 text-white"
           />
+          <p className="text-red-600 p-2 font-bold">{errorMessage}</p>
           <br />
-          <button className="p-6 m-2 bg-red-600 w-full rounded-full text-white">
+          <button
+            className="p-6 m-2 bg-red-600 w-full rounded-full text-white"
+            onClick={handleButtonClick}
+          >
             Sign-In
           </button>
           <p className="text-white cursor-pointer" onClick={toggleSignInForm}>
