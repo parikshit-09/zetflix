@@ -4,9 +4,9 @@ import { validateLogin } from "../utils/validate";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  updateProfile,
 } from "firebase/auth";
 import { auth } from "../utils/firebase";
-import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [isLoginIn, setIsLoginIn] = useState(true); //Toggle for Sign-in & Sign-up
@@ -14,7 +14,6 @@ const Login = () => {
   const email = useRef(null);
   const password = useRef(null);
   const name = useRef(null);
-  const navigate = useNavigate();
 
   const toggleSignInForm = () => {
     setIsLoginIn(!isLoginIn);
@@ -43,15 +42,22 @@ const Login = () => {
           })
             .then(() => {
               // Profile updated!
-              navigate("/browser");
+              const { uid, email, displayName } = auth.currentUser;
+              dispatch(
+                addUser({
+                  uid: uid,
+                  email: email,
+                  displayName: displayName,
+                })
+              );
               // ...
             })
             .catch((error) => {
               // An error occurred
               setErrorMessage(error.message); // ...
             });
-          console.log(user);
-          navigate("/browser");
+          //console.log(user);
+
           // ...
         })
         .catch((error) => {
@@ -70,8 +76,8 @@ const Login = () => {
         .then((userCredential) => {
           // Signed in
           const user = userCredential.user;
-          console.log(user);
-          navigate("/browser");
+          //console.log(user);
+
           // ...
         })
         .catch((error) => {
