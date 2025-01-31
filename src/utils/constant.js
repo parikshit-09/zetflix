@@ -7,3 +7,7 @@ export const API_OPT = {
   },
 };
 export const TMDB_IMG = "https://image.tmdb.org/t/p/w500";
+export const OpenAiKey =
+  "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";
+
+export const GEMINI_API = "AIzaSyCwz6DOTocH_vGdQUkDMFoLOMvqU64jBM8";
