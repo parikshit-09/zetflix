@@ -39,7 +39,7 @@ const GptMovieSearch = () => {
   };
   //console.log(result.response.text());
   return (
-    <div className="pt-[10%] flex justify-center">
+    <div className="pt-[1 0%] flex justify-center">
       <form
         className="w-1/2 bg-slate-800 grid grid-cols-12 rounded-full"
         onSubmit={(e) => e.preventDefault()}
